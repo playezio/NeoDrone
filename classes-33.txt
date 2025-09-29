@@ -1,0 +1,80 @@
+Person
+Tricycle
+Car
+Minivan
+Van
+Truck
+Bus
+Tanker
+DumpTruck 
+Excavator
+Crane
+Bulldozer
+RescueCar
+WateringTruck
+EleTower
+Ship
+ArmoredVehicle
+FireTruck
+FixedDrone
+HexaCopter
+QuadCopter
+MixerCar
+EleBike
+Forklift
+PilingMachine
+RoadRoller
+EngineeringCar
+AgriCar
+PouringTruck
+skis
+snowboard
+sports ball
+kite
+baseball bat
+baseball glove
+skateboard
+surfboard
+tennis racket
+bottle
+wine glass
+cup
+fork
+knife
+spoon
+bowl
+banana
+apple
+sandwich
+orange
+broccoli
+carrot
+Car 0.54
+Car 0.51
+Car 0.67
+Car 0.65
+Car 0.52
+Car 0.53
+Car 0.51
+Car 0.68
+Car 0.67
+Car 0.53
+Car 0.63
+Car 0.51
+Car 0.65
+Car 0.64
+Car 0.52
+Car 0.96
+Car 0.95
+Car 0.94
+Car 0.96
+Car 0.92
+Car 0.94
+Car 0.95
+Car 0.96
+Car 0.95
+Car 0.94
+Car 0.93
+Car 0.92
+Car 0.91
+
