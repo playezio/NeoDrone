@@ -1,6 +1,12 @@
 import pandas as pd
+import argparse
 
-file_path = "xxx.xlsx"
+# 解析命令行参数
+parser = argparse.ArgumentParser(description='统计各组目标数量')
+parser.add_argument('--input', type=str, default='xxx.xlsx', help='输入Excel文件路径')
+args = parser.parse_args()
+
+file_path = args.input
 df = pd.read_excel(file_path, header=None)
 
 groups = []

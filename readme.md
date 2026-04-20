@@ -1,186 +1,252 @@
-# NEODrone Tools
+# NEODrone Dataset Processing Pipeline
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)  
-**Official utility scripts for the NEODrone dataset** — a large-scale, multi-modal, low-altitude drone vision dataset for aerial object detection, scene understanding, and cross-domain perception.
+## Reproducibility Statement
 
+**Code Version:** v1.0.0  
+**Dataset Version:** NEODrone v2.1
 
-> 🌐 **Data Access**: [Science Data Bank - NEODrone](https://www.scidb.cn) (10.57760/sciencedb.28912)(application required for raw data)
+### Input Specifications
+- **Original Video Path Format:** `{source_dir}/{flight_id}/{sensor_type}_{timestamp}.mp4`
+  - Example: `raw_videos/flight_001/visible_20240101_120000.mp4`
+- **SDK Log Structure:** JSON format with `/telemetry/*` and `/camera/*` endpoints
+- **Supported Sensor Types:** visible (RGB), thermal (infrared), multispectral
 
----
+### Output Specifications
+- **Directory Structure:** Matches publicly released NEODrone dataset exactly
+- **File Naming Convention:** `{flight_id}_{frame_index:06d}.jpg` (RGB), `{flight_id}_{frame_index:06d}_thermal.png` (IR)
+- **Metadata Format:** Structured `.xlsx` with 15 standardized fields
+- **Annotation Format:** YOLO format `.txt` files with 28-class taxonomy
 
-## 📦 Overview
-
-This repository provides a suite of Python utilities to **process, validate, visualize, and convert** the NEODrone dataset. The tools support:
-
-- Adaptive keyframe extraction based on flight dynamics  
-- Multi-modal (visible + infrared) consistency verification  
-- Automated image quality assessment  
-- Pascal VOC → COCO annotation conversion  
-- Metadata-based dataset filtering  
-- Annotation visualization  
-
-All scripts are designed to **reproduce the data pipeline** described in Sections 5.2–5.5 of the NEODrone paper.
-
----
-
-## 🗂️ Repository Structure
-
-```bash
-NEODrone-Tools/
-├── img_cut.py              # Adaptive keyframe extraction using speed & height
-├── light-red.py            # Visible-infrared pair consistency validation
-├── quality_check.py        # Image quality screening (sharpness, exposure, blur, noise)
-├── voc2coco.py             # Convert VOC XML annotations to COCO JSON
-├── visualize.py            # Visualize bounding boxes and class labels
-├── metadata_parser.py      # Filter dataset subsets by metadata (height, weather, scene, etc.)
-├── class_max_choose.py        # Select images from the most frequent class
-├── class_number_sum.py        # Count total instances per class across all images
-├── draw_box_new.py            # Visualize bounding boxes and class labels
-├── object_number_sum.py       # Count total number of annotated objects
-├── xml2txt-nochange.py        # Convert VOC XML annotations to YOLO-compatible .txt format
-├── README.md
-└── LICENSE
-```
+### Validation
+- **Verification Script:** `scripts/verify_output.py` validates:
+  - Output frame count matches extraction protocol
+  - Metadata field completeness (15/15 fields)
+  - RGB-IR pair alignment (≤5 pixels deviation)
+  - Annotation consistency (α coefficient ≥0.8)
 
 ---
 
-## ⚙️ Installation
+## Project Structure
 
-### Prerequisites
-- Python ≥ 3.8
-- OpenCV (with SIFT support)
-- pandas, numpy, lxml, openpyxl, tqdm
-
-### Install Dependencies
-```bash
-pip install opencv-contrib-python pandas numpy lxml openpyxl tqdm
-```
-
-> 💡 **Note**: `opencv-contrib-python` is required for SIFT (used in `light-red.py`). Do **not** install `opencv-python` simultaneously.
-
----
-
-## 🛠️ Usage Examples
-
-### 1. **Extract Keyframes Based on Flight Logs**
-```bash
-python img_cut.py \
-  --video ./raw/mission_01.mp4 \
-  --log ./logs/mission_01.json \
-  --output_dir ./keyframes/mission_01
-```
-> Flight log must contain `timestamp`, `height` (m), and `speed` (m/s).
-
----
-
-### 2. **Validate Visible-Infrared Pair Consistency**
-```bash
-python light-red.py \
-  --light_dir ./Images/light \
-  --red_dir ./Images/red \
-  --ann_dir ./Annotations \
-  --keep_consistent_only
-```
-- Enforces **<10ms time sync** and **≥150 SIFT matches**
-- Removes inconsistent pairs to `rejected/` subdirs
-
----
-
-### 3. **Batch Quality Check (Reproduce 5.2.2 Cleaning)**
-```bash
-python quality_check.py \
-  --input_dir ./Images/light \
-  --output_csv quality_report.csv \
-  --laplacian_threshold 85 \
-  --brightness_low 30 \
-  --brightness_high 220 \
-  --blur_threshold 0.25
-```
-
----
-
-### 4. **Convert VOC → COCO for MMDetection / Detectron2**
-```bash
-python voc2coco.py \
-  --annotation_dir ./Annotations \
-  --image_dir ./Images/light \
-  --output_json ./coco/train.json
-```
-
----
-
-### 5. **Filter Subsets by Metadata**
-```bash
-# List unique metadata values
-python metadata_parser.py --metadata_dir ./Metadata --list_unique
-
-# Extract "urban + sunny + height 80–120m" subset
-python metadata_parser.py \
-  --metadata_dir ./Metadata \
-  --scene 城市 \
-  --weather 晴天 \
-  --min_height 80 \
-  --max_height 120 \
-  --output_csv urban_sunny_80_120.csv
-```
-
----
-
-### 6. **Visualize Annotations**
-```bash
-# Preview 5 random images
-python visualize.py \
-  --image_dir ./Images/light \
-  --annotation_dir ./Annotations \
-  --num_samples 5
-
-# Save visualization of a specific image
-python visualize.py \
-  --image_dir ./Images/light \
-  --annotation_dir ./Annotations \
-  --image_name Hebei_Urban_Sunny_AM_01_00045.jpg \
-  --output_dir ./vis/
-```
-
----
-
-## 📚 Dataset Organization (Expected Input)
-
-Your NEODrone dataset should follow this structure:
 ```
 NEODrone/
-├── Images/
-│   ├── light/          # Visible images (.jpg)
-│   └── red/            # Infrared images (.jpg)
-├── Annotations/        # Pascal VOC XML files
-└── Metadata/           # .xlsx files (one per video segment)
+├── README.md                 # This file
+├── LICENSE                   # MIT License
+├── requirements*.txt         # Module-specific dependencies
+├── configs/
+│   ├── extraction_config.yaml
+│   └── cleaning_thresholds.yaml
+├── src/
+│   ├── extraction/           # Data extraction scripts
+│   ├── cleaning/             # Cleaning and quality control scripts
+│   ├── annotation/           # Annotation assistance and consistency
+│   └── metadata/             # Metadata parsing and validation
+├── weights/                  # Pre-trained/fine-tuned model weights
+├── docs/
+│   ├── API_endpoints.md      # DJI SDK endpoint documentation
+│   └── annotation_guidelines.pdf  # Annotation specifications
+└── scripts/
+    ├── run_full_pipeline.sh  # One-click reproduction script
+    └── generate_dataset_card.py  # Dataset card generator
 ```
 
-> File naming: `Hebei_Urban_Sunny_AM_01_00045.jpg` ↔ `Hebei_Urban_Sunny_AM_01_00045.xml`
+---
+
+## Installation
+
+### Prerequisites
+- Python 3.8+
+- CUDA 11.0+ (for GPU acceleration)
+- FFmpeg (for video processing)
+
+### Setup
+
+```bash
+# Clone repository
+git clone https://github.com/your-org/NEODrone.git
+cd NEODrone
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements_extraction.txt
+pip install -r requirements_annotation.txt
+pip install -r requirements_metadata.txt
+```
 
 ---
 
-## 📝 Citation
+## Usage
 
-If you use NEODrone or these tools in your research, please cite:
+### Quick Start
 
-coming soon
+```bash
+# Run full pipeline
+bash scripts/run_full_pipeline.sh
+
+# Or run individual modules
+python src/extraction/extract_frames.py --input raw_videos/ --output frames/
+python src/cleaning/clean_pipeline.py --input frames/ --output cleaned/
+python src/annotation/train_rtdetr.py --data data.yaml
+python src/metadata/validate_schema.py --metadata metadata.xlsx
+```
+
+### Module-Specific Usage
+
+#### 1. Data Extraction
+```bash
+python src/extraction/extract_frames.py \
+    --input raw_videos/ \
+    --output frames/ \
+    --config configs/extraction_config.yaml
+```
+
+#### 2. Multi-modal Synchronization
+```bash
+python src/extraction/sync_extract.py \
+    --visible frames/visible/ \
+    --thermal frames/thermal/ \
+    --output synced/
+```
+
+#### 3. Metadata Parsing
+```bash
+python src/extraction/parse_metadata.py \
+    --sdk_logs logs/ \
+    --exif_data frames/ \
+    --output metadata.xlsx
+```
+
+#### 4. Data Cleaning
+```bash
+python src/cleaning/clean_pipeline.py \
+    --input frames/ \
+    --output cleaned/ \
+    --config configs/cleaning_thresholds.yaml
+```
+
+#### 5. Annotation Training
+```bash
+python src/annotation/train_rtdetr.py \
+    --data data.yaml \
+    --epochs 100 \
+    --batch 16 \
+    --output weights/rtdetr_neodrone.pt
+```
+
+#### 6. Annotation Inference
+```bash
+python src/annotation/inference_rtdetr.py \
+    --weights weights/rtdetr_neodrone.pt \
+    --input cleaned/ \
+    --output annotations/
+```
 
 ---
 
-## 📜 License
+## Configuration
 
-This code is released under the [MIT License](LICENSE).  
-The NEODrone dataset is available via [Science Data Bank](https://www.scidb.cn) under a restricted-access policy.
+### Extraction Parameters (`configs/extraction_config.yaml`)
+```yaml
+sampling:
+  strategy: "adaptive"  # adaptive, fixed, scene_change
+  interval: 1.0  # seconds
+  overlap_threshold: 0.7
+  
+quality:
+  min_resolution: [1920, 1080]
+  min_sharpness: 0.5
+  max_blur_score: 0.3
+```
+
+### Cleaning Thresholds (`configs/cleaning_thresholds.yaml`)
+```yaml
+detection:
+  model: "yolov8x"
+  confidence_threshold: 0.5
+  iou_threshold: 0.45
+  
+thermal:
+  anomaly_threshold: 0.05  # 5% abnormal pixels
+  dead_pixel_threshold: 100
+  
+alignment:
+  max_deviation: 5  # pixels
+  min_overlap: 0.8
+```
 
 ---
 
-## 🙏 Acknowledgements
+## Dataset Card
 
-- Built on DJI Mavic 3T platform with hardware-level visible-infrared synchronization  
-- Inspired by best practices from VisDrone, DroneVehicle, and UAVDT  
-- Tools designed to support **reproducible, transparent, and responsible** aerial vision research
+Generate a dataset card compatible with Hugging Face / ScienceDB:
 
---- 
+```bash
+python scripts/generate_dataset_card.py \
+    --metadata metadata.xlsx \
+    --output dataset_card.md
+```
 
-> ✨ **Contribution Welcome!** If you extend these tools (e.g., add YOLO format support, integrate with Hugging Face Datasets), feel free to open a PR!
+---
+
+## Verification
+
+Validate output quality and consistency:
+
+```bash
+python scripts/verify_output.py \
+    --expected_frames 50000 \
+    --metadata metadata.xlsx \
+    --annotations annotations/
+```
+
+---
+
+## Citation
+
+If you use this code or dataset, please cite:
+
+```bibtex
+@article{neodrone2024,
+  title={NEODrone: A Multi-modal Drone Dataset for Object Detection},
+  author={[Author Names]},
+  journal={[Journal]},
+  year={2024},
+  volume={[Volume]},
+  number={[Number]},
+  pages={[Pages]}
+}
+```
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Acknowledgments
+
+- YOLOv8x model weights from [Ultralytics](https://github.com/ultralytics/ultralytics)
+- RT-DETR implementation from [PaddleDetection](https://github.com/PaddlePaddle/PaddleDetection)
+- Krippendorff's alpha calculation from [krippendorff package](https://github.com/pln-fing-udelar/krippendorff)
+
+---
+
+## Contact
+
+For questions or issues, please open an issue on GitHub or contact [maintainer@email.com].
+
+---
+
+## Third-Party Dependencies
+
+- **YOLOv8x:** Pre-trained weights from Ultralytics (AGPL-3.0 License)
+- **RT-DETR:** Official implementation from PaddleDetection (Apache 2.0 License)
+- **OpenCV:** BSD-3 License
+- **PyTorch:** BSD-style License
+
+See individual `requirements_*.txt` files for complete dependency lists with version specifications.

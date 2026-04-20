@@ -1,0 +1,18 @@
+sampling:
+  strategy: "adaptive"  # Options: adaptive, fixed, scene_change
+  interval: 1.0  # Sampling interval in seconds (for fixed strategy)
+  overlap_threshold: 0.7  # Frame difference threshold for scene change detection
+
+quality:
+  min_resolution: [1920, 1080]  # Minimum image resolution [width, height]
+  min_sharpness: 100.0  # Minimum sharpness score (variance of Laplacian)
+  max_blur_score: 0.5  # Maximum blur score (normalized 0-1)
+  min_brightness: 0.1  # Minimum brightness (normalized 0-1)
+  max_brightness: 0.9  # Maximum brightness (normalized 0-1)
+  min_contrast: 0.05  # Minimum contrast (normalized 0-1)
+  min_edge_density: 0.01  # Minimum edge density (normalized 0-1)
+
+output:
+  format: "jpg"  # Output image format: jpg, png
+  quality: 95  # JPEG quality (1-100)
+  naming_pattern: "{video_name}_{frame_index:06d}.{ext}"  # File naming pattern

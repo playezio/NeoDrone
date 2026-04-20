@@ -1,8 +1,15 @@
 import pandas as pd
 from collections import defaultdict
 import os
+import argparse
 
-file_path = "xxx.xlsx"
+# 解析命令行参数
+parser = argparse.ArgumentParser(description='选择每个类别的Top1组')
+parser.add_argument('--input', type=str, default='xxx.xlsx', help='输入Excel文件路径')
+parser.add_argument('--output', type=str, default='各类别Top1组.xlsx', help='输出Excel文件路径')
+args = parser.parse_args()
+
+file_path = args.input
 df = pd.read_excel(file_path, header=None)
 
 # 收集：类别 -> [(组名, 数量), ...]
@@ -41,7 +48,7 @@ for cat, grp_list in category_groups.items():
 result = pd.DataFrame(top1_rows).sort_values("类别").reset_index(drop=True)
 
 # 保存
-out_file = "各类别Top1组.xlsx"
+out_file = args.output
 result.to_excel(out_file, index=False)
 print("✅ 已生成：", os.path.abspath(out_file))
 print(result)

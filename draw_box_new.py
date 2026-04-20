@@ -6,12 +6,30 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 
 
-# 全局变量路径配置
-label_folder = 'E:/ProData/code/draw-YOLO-box/labels'
-raw_images_folder = 'E:/ProData/code/draw-YOLO-box/raw_images'
-save_images_folder = 'E:/ProData/code/draw-YOLO-box/save_image'
+import argparse
+
+# 全局变量路径配置（默认相对路径）
+label_folder = './labels'
+raw_images_folder = './raw_images'
+save_images_folder = './save_image'
 name_list_path = './name_list.txt'
-classes_path = 'E:/ProData/code/draw-YOLO-box/classes-33.txt'
+classes_path = './classes-33.txt'
+
+# 解析命令行参数
+parser = argparse.ArgumentParser(description='Draw YOLO boxes on images')
+parser.add_argument('--label-folder', type=str, default=label_folder, help='Path to label files')
+parser.add_argument('--image-folder', type=str, default=raw_images_folder, help='Path to raw images')
+parser.add_argument('--save-folder', type=str, default=save_images_folder, help='Path to save images')
+parser.add_argument('--name-list', type=str, default=name_list_path, help='Path to name list file')
+parser.add_argument('--classes', type=str, default=classes_path, help='Path to classes file')
+args = parser.parse_args()
+
+# 更新路径配置
+label_folder = args.label_folder
+raw_images_folder = args.image_folder
+save_images_folder = args.save_folder
+name_list_path = args.name_list
+classes_path = args.classes
 
 
 # 👇 修复版：确保加载到有效字体

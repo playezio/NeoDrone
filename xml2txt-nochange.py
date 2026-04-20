@@ -3,9 +3,14 @@ import pickle
 import os
 from os import listdir, getcwd
 from os.path import join
+from pathlib import Path
 #定义没有的为-1，if等于-1，那么舍弃这个标签
 
 
+# 类别映射定义
+# classes: 输入的类别标签（字符串形式的数字）
+# map: 输出的类别ID（与输入相同，直接映射）
+# 注：如果需要修改类别映射关系，可以调整map列表中的值
 classes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33"]
 map = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33"]
 
@@ -65,13 +70,19 @@ def convert_annotation(image_id):
 
 def convert_singleImg(image_path):
     #根据img_path获取xmlpath和txtpath
-
-    #将image_path里的"图片"换成“标注”和“标注txt
-    xmlpath = image_path[:14] + "标注" + image_path[16:]
-    xmlpath = xmlpath[:-4] + ".xml"
-
-    txtpath = image_path[:14] + "标注txt" + image_path[16:]  #将标注另存到其他文件夹
-    txtpath = txtpath[:-4] + ".txt"
+    
+    # 使用Pathlib进行路径操作，提高可移植性
+    img_path = Path(image_path)
+    parent_dir = img_path.parent
+    img_name = img_path.stem
+    
+    # 构建xml路径：将父目录中的"图片"替换为"标注"
+    xml_parent = parent_dir.as_posix().replace("图片", "标注")
+    xmlpath = str(Path(xml_parent) / f"{img_name}.xml")
+    
+    # 构建txt路径：将父目录中的"图片"替换为"标注txt"
+    txt_parent = parent_dir.as_posix().replace("图片", "标注txt")
+    txtpath = str(Path(txt_parent) / f"{img_name}.txt")
 
     #txtpath = image_path[:-4] + ".txt"      #将标注存放到图片文件夹
 

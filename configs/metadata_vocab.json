@@ -1,0 +1,41 @@
+{
+  "acquisition_weather": [
+    "sunny",
+    "cloudy",
+    "rainy",
+    "snowy",
+    "foggy",
+    "night",
+    "overcast",
+    "partly_cloudy",
+    "windy",
+    "stormy"
+  ],
+  "acquisition_scene": [
+    "urban",
+    "suburban",
+    "rural",
+    "industrial",
+    "residential",
+    "commercial",
+    "agricultural",
+    "forest",
+    "mountain",
+    "coastal",
+    "highway",
+    "bridge",
+    "construction",
+    "airport",
+    "port",
+    "park",
+    "stadium",
+    "campus",
+    "military",
+    "other"
+  ],
+  "sensor_type": [
+    "visible",
+    "thermal",
+    "multispectral"
+  ]
+}

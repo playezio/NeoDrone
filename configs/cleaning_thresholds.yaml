@@ -1,0 +1,30 @@
+detection:
+  model: "yolov8x.pt"  # Pre-trained YOLOv8x model path
+  confidence_threshold: 0.5  # Minimum confidence for object detection
+  iou_threshold: 0.45  # IoU threshold for NMS
+  min_objects: 1  # Minimum number of objects required per image
+
+thermal:
+  anomaly_threshold: 0.05  # Maximum allowed anomaly percentage (5%)
+  dead_pixel_threshold: 100  # Dead pixel threshold (0-255)
+  striping_threshold: 0.3  # Striping noise threshold ratio
+  hotspot_threshold: 2.0  # Hotspot detection threshold (std deviations)
+
+alignment:
+  max_deviation: 5  # Maximum allowed deviation in pixels
+  min_overlap: 0.8  # Minimum overlap ratio for bbox matching
+  min_matches: 10  # Minimum number of keypoint matches required
+
+quality:
+  min_sharpness: 100.0  # Minimum sharpness score
+  max_blur_score: 0.5  # Maximum blur score
+  min_brightness: 0.1  # Minimum brightness
+  max_brightness: 0.9  # Maximum brightness
+  min_contrast: 0.05  # Minimum contrast
+  min_edge_density: 0.01  # Minimum edge density
+
+preprocessing:
+  resize: false  # Whether to resize images
+  target_size: [1920, 1080]  # Target size for resizing
+  normalize: false  # Whether to normalize pixel values
+  augment: false  # Whether to apply data augmentation
